@@ -1,11 +1,15 @@
+import ContextFreeGrammar as ContextFreeGrammar_module
 from ContextFreeGrammar import ContextFreeGrammar
 
 
+ContextFreeGrammar_module.DEBUG = (input("Input 'Y' if you want to see tables, anything else otherwise: ") == "Y")
 rules = []
-N = int(input("Amount of rules: "))
-print("Rules:")
-for i in range(N):
-    rules.append(input())
+print("Input rules: (space to exit)")
+while True:
+    inp = input()
+    if inp == " ":
+        break
+    rules.append(inp)
 grammar = ContextFreeGrammar(rules)
 
 while True:
@@ -13,13 +17,14 @@ while True:
     if text == " ":
         break
 
-    parsing = grammar.checkLR1(text)
+    try:
+        parsing = grammar.checkLR1(text)
+    except:
+        print("Word is not in grammar")
+        continue
 
     if parsing == False:
         print("Word is not in grammar")
     else:
         print("OK")
-        #for i in range(len(parsing) - 1):
-        #    print(parsing[i][0])
-        #    print(" " * 16 + f"{parsing[i][1]} -> {parsing[i][2]}")
-        #print(parsing[-1][0])
+ 
