@@ -11,7 +11,16 @@ while True:
     if inp == " ":
         break
     rules.append(inp)
-grammar = ContextFreeGrammar(rules)
+
+try:
+    grammar = ContextFreeGrammar(rules)
+except Exception as e:
+    if e.args[0] == "Grammar is not LR(1)":
+        print(e.args[0])
+        exit()
+    else:
+        raise e
+
 
 while True:
     text = input("\nText (space to exit): ")

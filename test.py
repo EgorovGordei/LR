@@ -6,15 +6,35 @@ def test_rule():
     assert(str(rule) == "A->.B:")
 
 
+def test_akhoulman_0():
+    rules = ["S->Ab", "S->Bc", "A->Aa", "A->", "B->Ba", "B->"]
+    try:
+        grammar = ContextFreeGrammar(rules)
+        assert(False)
+    except Exception as e:
+        if e.args[0] != "Grammar is not LR(1)":
+            assert(False)
+
+
+def test_akhoulman_1():
+    rules = ["S->AB", "A->a", "B->CD", "B->aE", "C->ab", "D->bb", "E->bba"]
+    try:
+        grammar = ContextFreeGrammar(rules)
+        assert(False)
+    except Exception as e:
+        if e.args[0] != "Grammar is not LR(1)":
+            assert(False)
+
+
 def test_custom0_0():
-    rules = ["S->abSb", "S->bbT", "T->aTT", "T->a"]
+    rules = ["S->abSb", "S->bbT", "T->aT", "T->a"]
     text = "abbbab"
     grammar = ContextFreeGrammar(rules)
     assert(grammar.checkLR1(text))
 
 
 def test_custom0_1():
-    rules = ["S->abSb", "S->bbT", "T->aTT", "T->a"]
+    rules = ["S->abSb", "S->bbT", "T->aT", "T->a"]
     text = "abbbaba"
     grammar = ContextFreeGrammar(rules)
     assert(not grammar.checkLR1(text))

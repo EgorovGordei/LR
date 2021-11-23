@@ -182,8 +182,8 @@ class ContextFreeGrammar():
                         if goto_transitions[(q_ind, a)] != -1:
                             action = "s" + str(goto_transitions[(q_ind, a)])
                             self.table_action[(q_ind, a)].add(action)
-                if exit:
-                    continue
+                #if exit:
+                #    continue
                 # accept or reduce
                 for rule_ind in range(len(q)):
                     rule = q[rule_ind]
@@ -244,6 +244,7 @@ class ContextFreeGrammar():
             next_symbol = text[pos]
             cur_state = stack[-1]
             action = self.table_action[(cur_state, next_symbol)]
+            print(stack, action, pos)
             if len(action) == 0:
                 # nothing to do, reject
                 return False
