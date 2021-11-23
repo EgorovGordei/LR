@@ -24,3 +24,10 @@ File ContextFreeGrammar.py contains main ContextFreeGrammar class and some depen
 
 ### who knows
 
+
+##TODO
+
+# return parsing
+# LR(K)
+# README
+
