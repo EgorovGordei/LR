@@ -103,3 +103,34 @@ def test_custom_4_2():
     grammar = ContextFreeGrammar(rules)
     assert(not grammar.checkLR1(text))
 
+
+def test_custom_4_3():
+    rules = ["S->A is A", "A->BC", "B->a ", "B->the ", "B->", "C->math", "C->pleasure"]
+    text = "math is pleasure*"
+    grammar = ContextFreeGrammar(rules)
+    try:
+        grammar.checkLR1(text)
+        assert(False)
+    except Exception as e:
+        assert(e.args[0] == "checkLR1: unexpected symbol * in text")
+
+
+def test_custom_5_0():
+    rules = ["S->S", "S->T+T", "T->S ", "T->x"]
+    try:
+        grammar = ContextFreeGrammar(rules)
+        assert(False)
+    except Exception as e:
+        assert(e.args[0] == "Grammar is not LR(1)")
+
+
+def test_custom_6_0():
+    rules = ["S->"]
+    text = "S"
+    grammar = ContextFreeGrammar(rules)
+    try:
+        grammar.checkLR1(text)
+        assert(False)
+    except Exception as e:
+        assert(e.args[0] == "checkLR1: unexpected symbol S in text")
+
