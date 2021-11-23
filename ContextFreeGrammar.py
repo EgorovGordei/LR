@@ -1,6 +1,9 @@
+# if set True will print tables
 DEBUG = True
 
+
 class Rule():
+    '''Contains letter, word, dot and i of rule'''
     def __init__(self, rule, dot=0, i="", parents=[]):
         self.letter = rule[0:rule.index("->")]
         self.word = rule[rule.index("->") + 2:]
@@ -18,14 +21,13 @@ class Rule():
         return str(self.letter) + "->" + str(self.word[0:self.dot]) + \
                "." + str(self.word[self.dot:]) + ":" + str(self.i)
 
-    def __hash__(self):
-        return hash(self.whole())
-
 
 class ContextFreeGrammar():
     def __init__(self, rules):
+        # create rules
         self.rules = [Rule(rule) for rule in rules]
         self.rules.append(Rule("$->S"))
+        # prepare grammar for parsing
         self.setEpsylon()
         self.setFirst()
         self.terminals = set()
@@ -36,6 +38,8 @@ class ContextFreeGrammar():
         self.fillTable()
 
     def setEpsylon(self):
+        # constructs self.epsylon such that:
+        #   self.epsylon[nonterminal] = True <=> nonterminal -> ""
         self.epsylon = dict()
         nonterminals = set(rule.letter for rule in self.rules)
         for nt in nonterminals:
@@ -51,13 +55,14 @@ class ContextFreeGrammar():
             print("Epsylon: ", self.epsylon)
 
     def isE(self, word):
-        # {"#"} if word -> e else {}
+        # {"#"} if word -> "" else {}
         for letter in word:
             if letter not in self.epsylon or self.epsylon[letter] == False:
                 return set()
         return {"#"}
 
     def getFirst(self, text):
+        # first + check_empty
         if len(text) == 0:
             return ["#"]
         if text[0] in self.first.keys():
@@ -65,6 +70,7 @@ class ContextFreeGrammar():
         return text[0]
 
     def closure(self, situations):
+        # for every situation S->alpha.Bbeta add rules B->.gamma
         ans = []
         for sit in situations:
             ans.append(Rule(sit.whole(), sit.dot, sit.i))
@@ -81,8 +87,9 @@ class ContextFreeGrammar():
         return tuple(ans)
 
     def goto(self, situations, nonterminal):
-        if len(nonterminal) < 1:
-            raise Exception("goto: len(nonterminal) < 1")
+        # S->alpha.cbeta, nonterminal=c => add S->alphac.beta to answer
+        if len(nonterminal) != 1:
+            raise Exception("goto: len(nonterminal) != 1")
         if len(nonterminal) == 1:
             ans = []
             for sit in situations:
@@ -90,10 +97,6 @@ class ContextFreeGrammar():
                     ans.append(Rule(sit.whole(), sit.dot + 1, sit.i))
             ans = self.closure(ans)
             return ans
-        cur_situations = situations
-        for nt in nonterminal:
-            cur_situations = self.goto(cur_situations, nt)
-        return cur_situations
  
     def setFirst(self):
         dependencies = dict()
@@ -149,9 +152,8 @@ class ContextFreeGrammar():
             i += 1
         if DEBUG:
             print("Situations")
-        for i in range(len(Q)):
-            print(i, Q[i])
-        # print(goto_transitions)
+            for i in range(len(Q)):
+                print(i, Q[i])
         # empty self.table_goto and self.table_action
         self.table_goto = dict()
         self.table_action = dict()
@@ -165,6 +167,7 @@ class ContextFreeGrammar():
         # fill table
         for q_ind in range(len(Q)):
             q = Q[q_ind]
+            # ACTION
             for a in self.terminals | set("#"):
                 exit = False
                 for rule_ind in range(len(q)):
@@ -190,17 +193,19 @@ class ContextFreeGrammar():
                     example = Rule("$->S")
                     example.dot = 1
                     example.i = "#"
-                    if rule == example:# and a == "#": # !!!!!!!!!!!!!!!!!!!!!!!!! a
+                    if rule == example:
                         self.table_action[(q_ind, a)].add("a")
+            # GOTO
             for A in self.first.keys():
                 self.table_goto[(q_ind, A)] = goto_transitions[(q_ind, A)]
 
-        # Check
+        # check for LR(1)
         for q_ind in range(len(Q)):
             for a in self.terminals | {"#"}:
                 if len(self.table_action[(q_ind, a)]) > 1:
                     raise Exception("Grammar is not LR(1)")
 
+        # print tables
         if DEBUG:
             lterminals = list(self.terminals)
             lnonterminals = list(self.first.keys())
@@ -219,6 +224,9 @@ class ContextFreeGrammar():
                 print("")
 
     def checkLR1(self, text):
+        for letter in text:
+            if letter not in self.terminals:
+                raise Exception(f"checkLR1: unexpected symbol {letter} in text")
         text += "#"
         stack = [0]
         pos = 0
@@ -227,13 +235,16 @@ class ContextFreeGrammar():
             cur_state = stack[-1]
             action = self.table_action[(cur_state, next_symbol)]
             if len(action) == 0:
+                # nothing to do, reject
                 return False
             action = list(action)[0]
             if action[0] == "s":
+                # shift: read next symbol
                 stack.append(next_symbol)
                 stack.append(int(action[1:]))
                 pos += 1
             elif action[0] == "r":
+                # reduce: apply rule and pop from stack
                 to_cut = len(self.rules[int(action[1:])].word)
                 if to_cut != 0:
                     stack = stack[0:-2 * to_cut]
@@ -244,6 +255,7 @@ class ContextFreeGrammar():
                 stack.append(A)
                 stack.append(self.table_goto[(next_state, A)])
             elif action == "a":
+                # accept
                 return True
             else:
                 raise Exception("checkLR1: unknown action")
