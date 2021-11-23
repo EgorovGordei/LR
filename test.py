@@ -84,35 +84,39 @@ def test_custom_3_1():
 
 
 def test_custom_4_0():
-    rules = ["S->A is A", "A->BC", "B->a ", "B->the ", "B->", "C->math", "C->pleasure"]
+    rules = ["S->A is A", "A->BC", "B->a ", "B->the ",
+             "B->", "C->math", "C->pleasure"]
     text = "a math is pleasure"
     grammar = ContextFreeGrammar(rules)
     assert(grammar.checkLR1(text))
 
 
 def test_custom_4_1():
-    rules = ["S->A is A", "A->BC", "B->a ", "B->the ", "B->", "C->math", "C->pleasure"]
+    rules = ["S->A is A", "A->BC", "B->a ", "B->the ",
+             "B->", "C->math", "C->pleasure"]
     text = "the math is a pleasure"
     grammar = ContextFreeGrammar(rules)
     assert(grammar.checkLR1(text))
 
 
 def test_custom_4_2():
-    rules = ["S->A is A", "A->BC", "B->a ", "B->the ", "B->", "C->math", "C->pleasure"]
+    rules = ["S->A is A", "A->BC", "B->a ", "B->the ",
+             "B->", "C->math", "C->pleasure"]
     text = " math is a pleasure"
     grammar = ContextFreeGrammar(rules)
     assert(not grammar.checkLR1(text))
 
 
 def test_custom_4_3():
-    rules = ["S->A is A", "A->BC", "B->a ", "B->the ", "B->", "C->math", "C->pleasure"]
+    rules = ["S->A is A", "A->BC", "B->a ", "B->the ",
+             "B->", "C->math", "C->pleasure"]
     text = "math is pleasure*"
     grammar = ContextFreeGrammar(rules)
     try:
         grammar.checkLR1(text)
         assert(False)
     except Exception as e:
-        assert(e.args[0] == "checkLR1: unexpected symbol * in text")
+        assert(e.args[0] == "checkLR1: unexpected symbol *")
 
 
 def test_custom_5_0():
@@ -132,5 +136,4 @@ def test_custom_6_0():
         grammar.checkLR1(text)
         assert(False)
     except Exception as e:
-        assert(e.args[0] == "checkLR1: unexpected symbol S in text")
-
+        assert(e.args[0] == "checkLR1: unexpected symbol S")

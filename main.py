@@ -2,7 +2,8 @@ import ContextFreeGrammar as ContextFreeGrammar_module
 from ContextFreeGrammar import ContextFreeGrammar
 
 
-ContextFreeGrammar_module.DEBUG = (input("Input 'Y' if you want to see tables, anything else otherwise: ") == "Y")
+ISTRING = "Input 'Y' if you want to see tables, anything else otherwise: "
+ContextFreeGrammar_module.DEBUG = (input(ISTRING) == "Y")
 rules = []
 print("Input rules: (space to exit)")
 while True:
@@ -19,12 +20,11 @@ while True:
 
     try:
         parsing = grammar.checkLR1(text)
-    except:
+    except Exception:
         print("Word is not in grammar")
         continue
 
-    if parsing == False:
+    if not parsing:
         print("Word is not in grammar")
     else:
         print("OK")
- 

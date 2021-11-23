@@ -48,7 +48,7 @@ class ContextFreeGrammar():
         while changed:
             changed = False
             for rule in self.rules:
-                if self.epsylon[rule.letter] == False and self.isE(rule.word):
+                if not self.epsylon[rule.letter] and self.isE(rule.word):
                     changed = True
                     self.epsylon[rule.letter] = True
         if DEBUG:
@@ -57,7 +57,7 @@ class ContextFreeGrammar():
     def isE(self, word):
         # {"#"} if word -> "" else {}
         for letter in word:
-            if letter not in self.epsylon or self.epsylon[letter] == False:
+            if letter not in self.epsylon or not self.epsylon[letter]:
                 return set()
         return {"#"}
 
@@ -78,8 +78,10 @@ class ContextFreeGrammar():
         while i < len(ans):
             sit = ans[i]
             for rule in self.rules:
-                if sit.dot < len(sit.word) and sit.word[sit.dot] == rule.letter:
-                    for c in self.getFirst(sit.word[sit.dot + 1:] + str(sit.i)):
+                if sit.dot >= len(sit.word):
+                    continue
+                if sit.word[sit.dot] == rule.letter:
+                    for c in self.getFirst(sit.word[sit.dot + 1:] + sit.i):
                         new_rule = Rule(rule.whole(), 0, c)
                         if new_rule not in ans:
                             ans.append(new_rule)
@@ -93,11 +95,13 @@ class ContextFreeGrammar():
         if len(nonterminal) == 1:
             ans = []
             for sit in situations:
-                if sit.dot < len(sit.word) and sit.word[sit.dot] == nonterminal:
+                if sit.dot >= len(sit.word):
+                    continue
+                if sit.word[sit.dot] == nonterminal:
                     ans.append(Rule(sit.whole(), sit.dot + 1, sit.i))
             ans = self.closure(ans)
             return ans
- 
+
     def setFirst(self):
         dependencies = dict()
         # all non-terminals
@@ -170,24 +174,30 @@ class ContextFreeGrammar():
             # ACTION
             for a in self.terminals | set("#"):
                 exit = False
+                # shift
                 for rule_ind in range(len(q)):
                     rule = q[rule_ind]
                     if rule.dot < len(rule.word) and rule.word[rule.dot] == a:
                         exit = True
                         if goto_transitions[(q_ind, a)] != -1:
-                            self.table_action[(q_ind, a)].add("s" + str(goto_transitions[(q_ind, a)]))
+                            action = "s" + str(goto_transitions[(q_ind, a)])
+                            self.table_action[(q_ind, a)].add(action)
                 if exit:
                     continue
+                # accept or reduce
                 for rule_ind in range(len(q)):
                     rule = q[rule_ind]
                     if rule.dot == len(rule.word) and rule.i == a:
-                        if self.rules.index(Rule(rule.whole())) == len(self.rules) - 1:
-                            self.table_action[(q_ind, a)].add("a")
+                        key = (q_ind, a)
+                        rule_pos = self.rules.index(Rule(rule.whole()))
+                        if rule_pos == len(self.rules) - 1:
+                            self.table_action[key].add("a")
                         else:
-                            self.table_action[(q_ind, a)].add("r" + str(self.rules.index(Rule(rule.whole()))))
+                            self.table_action[key].add("r" + str(rule_pos))
                         exit = True
                 if exit:
                     continue
+                # accept
                 for rule_ind in range(len(q)):
                     rule = q[rule_ind]
                     example = Rule("$->S")
@@ -226,7 +236,7 @@ class ContextFreeGrammar():
     def checkLR1(self, text):
         for letter in text:
             if letter not in self.terminals:
-                raise Exception(f"checkLR1: unexpected symbol {letter} in text")
+                raise Exception(f"checkLR1: unexpected symbol {letter}")
         text += "#"
         stack = [0]
         pos = 0
@@ -260,4 +270,3 @@ class ContextFreeGrammar():
             else:
                 raise Exception("checkLR1: unknown action")
         raise Exception("checkLR1: end of fucntion reached")
-
