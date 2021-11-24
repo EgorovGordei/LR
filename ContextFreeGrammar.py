@@ -23,7 +23,8 @@ class Rule():
 
 
 class ContextFreeGrammar():
-    def __init__(self, rules):
+    def __init__(self, rules, k = 1):
+        self.k = k
         # create rules
         self.rules = [Rule(rule) for rule in rules]
         self.rules.append(Rule("$->S"))
