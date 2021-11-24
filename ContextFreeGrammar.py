@@ -182,8 +182,6 @@ class ContextFreeGrammar():
                         if goto_transitions[(q_ind, a)] != -1:
                             action = "s" + str(goto_transitions[(q_ind, a)])
                             self.table_action[(q_ind, a)].add(action)
-                #if exit:
-                #    continue
                 # accept or reduce
                 for rule_ind in range(len(q)):
                     rule = q[rule_ind]
@@ -221,10 +219,10 @@ class ContextFreeGrammar():
             lnonterminals = list(self.first.keys())
             print("TABLES")
             print("ACTION | GOTO")
-            for lett in lterminals:
-                print(lett, end="       ")
+            for lett in lterminals + ["#"]:
+                print(lett, end="        ")
             for lett in lnonterminals:
-                print(lett, end="       ")
+                print(lett, end="        ")
             print("")
             for ind in range(len(Q)):
                 for lett in lterminals + ["#"]:

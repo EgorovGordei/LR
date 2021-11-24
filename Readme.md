@@ -13,6 +13,8 @@ Input amount of rules in grammar, then rules in format:
 
 "LETTER->SOME_TEXT" (f. e. "A->BCa+D") without quotes, then input text to be analized.
 
+Right part must not be empty!
+
 Non-terminals are A-Z. Don't use $ and # in both rules and text. Main rule is going to be $->S
 
 
