@@ -53,10 +53,3 @@ File ContextFreeGrammar.py contains main ContextFreeGrammar class and some depen
     8.c) if ACTION[(current_state, letter)] is reduce, apply rule
 
     8.d) if ACTION[(current_state, letter)] is shift, push stack and read next letter
-
-
-## TODO
-
-return parsing
-
-LR(K)
